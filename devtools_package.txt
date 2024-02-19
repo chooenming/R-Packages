@@ -1,0 +1,38 @@
+load_all
+load the code for all functions in the package (by default, based on the current working directory)
+also load all package data and compules and connects C, C++, FORTRAN code in the package
+ensure using the latest version of all package functions and data
+
+document
+create \man documentation files and the "NAMESPACE" file from roxygen2 code
+
+use_data
+save an object in the R session as a dataset in the package
+
+use_vignette
+set up the package to include a vignette
+
+use_readme_rmd
+set up the package to include a README file in Rmarkdown format
+adds files names for the R Markdown README file, and the Markdown file it creates, in the ".Rbuildignore" file, so it is not included when the package is built
+
+use_build_ignore
+specify files that should be ignored when building the R package
+
+check
+check the full R package for any ERRORs, WARNINGs, or NOTEs
+
+build_win
+build a version of the package for Windows and send it to be checked on a windows machine. You'll receive an email with a link to the results
+
+use_travis
+set the package up to facilitate using Travis CI with the package
+
+use_cran_comments
+create a file where you can add comments to include with CRAN submission
+
+submit_cran
+submit the package to CRAN
+
+use_news_md
+add a file to the package to give news on the changes in new versions

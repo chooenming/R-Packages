@@ -1,0 +1,65 @@
+R package beings life as a directory on computer
+This directory has a specific layout with specific files and sub-directories
+Two required sub-directories are:
+1. R, which contains all R code files
+2. man, which contains documentation files
+
+At the top level of package directory, will have DESCRIPTION file and a NAMESPACE file
+This represents the minimal requirements for an R package
+Other files and sub-directories can be added and will discuss how and why in the sections below
+
+Building R Packages Pre-Flight Check List:
+- Install devtools pacakage or update packages
+- Install roxygen2 package
+- Click on Project > New Project > New Directory
+- Click on "R Package using devtools" (may need to scroll down in the menu)
+- Enter package name
+- Verify the project subdirectory path does not contain any spaces
+- Click "Create Project"
+- Delete the NAMESPACE file (use roxygen2 to auto-generate the file)
+- Click "Build" tab in environment browser
+- Click More > "Configure Build Tools..."
+- Check "Generate documentation with Roxygen" > Click "Configure..." button
+- Check "Build & Reload" in the Roxygen options > Click OK
+- Click OK in Project Build Tools Options
+
+
+DESCRIPTION file
+- essential part of R package because it contains key metadata for the package that is used by repositories like CRAN and R
+- contains package name, version number, author, maintainer contact information, license information, dependencies on other packages
+
+
+NAMESPACE file
+- specifies the interface to the package that is presented to the user
+- done via a series of export() statements, which indicate which functions in the package are exported to the user
+- functions that are not exported cannot be called directly by the user
+- also specifies what functions or packages are imported by the package
+- if package depends on functions from another package, must import via the NAMESPACE file
+Example:
+export("mvtsplot")
+import(splines)
+import(RColorBrewer)
+importFrom("grDevices", "colorRampPalette", "gray")
+importFrom("graphics", "abline", "axis", "box", "image", "layout",
+           "lines", "par", "plot", "points", "segments", "strwidth",
+           "text", "Axis")
+importFrom("stats", "complete.cases", "lm", "na.exclude", "predict",
+           "quantile")
+
+- only a single function is exported from the package (the mvtsplot() function)
+- import(), takes package name as an argument, ad interpretation is that all exported functions from that external package will be accessible to the package
+- importFrom(), takes a package and a series of function names as arguments. This directive allows to specify exactly which function that is needed from an external package
+For example, this package imports the colorRampPalette() and gray() functions from the grDevices package
+- use import() if need almost ever function in a package. Else, use importFrom() to specify it
+
+Note:
+- use ::: to call functions that are not exported by package by using the namespace notation
+- <package name>:::<unexported function name>
+- useful for examining the code of an unexported function (i.e. for debugging purposes) or for temporarily accessing some unexported feature
+
+Loading and Attaching a Package Namespace
+- When package A imports the namespace of package B, package A loads the namespace of package B to gain access to the exported functions of package B
+- However, when the namespace of package B is loaded, it is only available to package A
+- it is not placed on the search list and is not visible to the user or to other packages
+- Attaching a package namespace places that namespace on the search list, making it visible to the user and to other packages
+- sometimes this is needed because certain functions need to be made visible to the user and not just to a given package

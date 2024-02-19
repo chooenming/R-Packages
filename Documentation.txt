@@ -1,0 +1,178 @@
+Two main types of documentation to include with packages:
+1. Longer doc that give tutorials or overviews for the whole package
+    can be created using package vignettes, README files, or both
+    can be done using knitr to create R Markdown documents that mix R code and text
+2. shorter, function specific help files for each function or group of related functions
+    can be created using roxygen2 package
+
+
+vignette and README files
+- vignette:
+    - document is bundled with R package, so it becomes locally available to user
+    - users will have it available if they install the package from Github as long as use build_vignettes = TRUE when running install_github
+    - use_vignette from devtools, which takes as arguments the file name of the cignette to create and the package to create (default: package in the current working directory)
+    - can have more than one vignette er package, which can be useful to include one vignette with general overview of the package, another with greater details about the applications
+    - once created, be sure to update the Vignette Index Entry in the vignette's YAML (the code at the top of an R Markdown document)
+    - replace "Vignette Title" with actual title use for the vignette
+
+- README file:
+    - show on main page of the repository if the package is on GitHub
+    - if does not need to include R code, can write directly as an .md file, using Markdown syntax
+    - if want to include R code, start with README.Rmd file, which can then render to Markdown using knitr
+    - can use devtools package to add either README.md or README.Rmd to a package directory, using use_readme_md or use_readme_rmd
+    - these functions will add appropriate file to the top level of the package directory and file name to ".Rbuildignore"
+
+
+knitr / Markdown
+- Both vignette and README files can be written as R Markdown files, which will allow to include R code examples and results from the package. 
+- knitr system for combining code and text to create a reproducible document 
+- R Markdown files:
+    - In markup languages,  markup the document directly to show what formatting the final version should have 
+    - i.e. type **bold** in the file to end up with a document with bold
+    - examples of markup languages:
+        - HTML
+        - LaTex
+        - Markdown
+    - https://bookdown.org/rdpeng/RProgDA/documentation.html#common-markdown-formatting-elements
+    - Other simple things that can be done in Markdown:
+        - lists (ordered or bulleted)
+        - equations
+        - tables
+        - figures from files
+        - block quotes
+        - superscripts
+    - start of a Markdown file gives some metadata for the file (authors, title, format) in a language called YAML
+    - for example:
+    ---
+    title: "Model Details for example_package"
+    author: "Jane Doe"
+    date: "2016-11-08"
+    output: rmarkdown::html_vignette
+    vignette: >
+    %\VignetteIndexEntry{Model Details for example_package}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+    ---
+    - When creating R Markdown documents using the RStudio toolbar, much of this YAML will be automatically generated based on specifications when opening the initial file
+    - However, this is not the case with package vignettes, for which you’ll need to go into the YAML and add the authors and title yourself
+    - Leave the vignette engine, vignette encoding, output, and date as their default values
+    - R Markdown files work a lot like Markdown files, but add the ability to include R code that will be run before rendering the final document
+    - Files created can then be rendered, to run any embedded code. Final output will have results from the code and the regular text
+    - basic steps of opening and rendering R Markdown file:
+        1. "File" > "New File" > "RMarkdown..." > choose "Document" in "HTML" format
+        2. This will open a new R Markdown file. file extension is ".Rmd"
+        3. The new file comes with some example code and text. Can run the file as-is to try out the example. Will ultimately delete the example code and text and replace it with own code
+        4. Once "knit" the R Markdown file, R will render an HTML file with output. Automatically saved in the same directory where you saved .Rmd file
+        5. Write everthing besides R code using Markdown syntax
+    - knit function from knitr package works by taking a document in R Markdown format (among a few possible formats), reading through it for any markers of the start of R code, running any of the code between that “start” marker and a marker showing a return to regular Markdown, writing any of the relevant results from R code into the Markdown file in Markdown format, and then passing the entire document, now in Markdown rather than R Markdown format, to software that can render from Markdown to the desired output format (for example, compile a pdf, Word, or HTML document)
+    - Meaning that user needs to do to include R code, that will be run if desired, within a document is to properly separate it from other parts of the document through the appropriate markers. 
+    - To indicate R code in an RMarkdown document, need to separate off the code chunk using the following syntax:
+        ```{r}
+        my_vec <- 1:10
+        ```
+    - can specify a name for each chunk, by including it after “r” when you begin your chunk. 
+    - For example, to give the name load_mtcars to a code chunk that loads the mtcars dataset, specify that name in the start of the code chunk:
+        ```{r load_mtcars}
+        data(mtcars)
+        ```
+    - chunk names must be unique across a document
+    - any chunks dont name are given ordered numbers by knitr
+    - dont have to name each chunk, but advantages of naming:
+        - easier to find any errors
+        - can use chunk labels in refering for figure labels
+        - can reference chunks later by name
+
+Common knitr options
+https://bookdown.org/rdpeng/RProgDA/documentation.html#common-knitr-chunk-options
+https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf
+- to include any of these options, add the option and value in the opening brackets and separate multiple options with commas:
+    ```{r  messages = FALSE, echo = FALSE}
+    mtcars[1, 1:3]
+    ```
+- set "global" options at the beginning to create new defaults for all chunks in the document
+    - i.e. echo, warning, and message to be FALSE by default in all code chunks:
+        ```{r  global_options}
+        knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+        ```
+- if set both global and local chunk options that set specifically for a chunk will take precedence over global options
+    - for example:
+        ```{r  global_options}
+        knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+        ```
+
+        ```{r  check_mtcars, echo = TRUE}
+        head(mtcars, 1)
+        ```
+    - this will print the code for check_mtcars chunk
+- can also include R output directly in text ("inline") using backticks(`):
+    “There are `r nrow(mtcars)` observations in the mtcars data set. The average miles per gallon is `r mean(mtcars$mpg, na.rm = TRUE)`.”
+- tips to diagnose prolems rendering R Markdown files:
+    - save R Markdown file before running it
+    - all code in the file will run from scratch
+    - code will run using, as a working directory, the directory where you saved the R Markdown file
+- try out pieces of code written in R Markdown document:
+    - run code in chunks 
+    - run all the code in chunk using different options under the "Run" button in RStudio
+- can use this format to create documentation, including vignettes, to give users advice and examples for using package
+
+Help Files and roxygen2
+- specific documentation showing users how to use and interpret any functions expect users to directly call
+- help files go in a folder called /man of the package, in .Rd file extensions
+- roxygen2 package put all the help information directly in the code where you define each function
+    - add the help file information directly above the code in R scripts saved in the R subdirectory of the package directory
+    - start each line with #'
+    - first line should give a short title for the function
+    - next block of documentation should be a longer description
+    - use tags that start with @ to define each element included
+    - leave empty line between each section of documentations
+    - can use indentation for second and later lines of elements to make code easier to read
+- Example:
+    #' Print "Hello world" 
+    #'
+    #' This is a simple function that, by default, prints "Hello world". You can 
+    #' customize the text to print (using the \code{to_print} argument) and add
+    #' an exclamation point (\code{excited = TRUE}).
+    #'
+    #' @param to_print A character string giving the text the function will print
+    #' @param excited Logical value specifying whether to include an exclamation
+    #'    point after the text
+    #' 
+    #' @return This function returns a phrase to print, with or without an 
+    #'    exclamation point added. As a side effect, this function also prints out
+    #'    the phrase. 
+    #'
+    #' @examples
+    #' hello_world()
+    #' hello_world(excited = TRUE)
+    #' hello_world(to_print = "Hi world")
+    #'
+    #' @export
+    hello_world <- function(to_print = "Hello world", excited = FALSE){
+        if(excited) to_print <- paste0(to_print, "!")
+        print(to_print)
+    }
+
+Common roxygen2 tags
+https://bookdown.org/rdpeng/RProgDA/documentation.html#common-roxygen2-tags
+- @example and @examples do different things
+    - use @examples tag for example code, or else will get errors when building the documentation
+- @inheritParams function save time, if using same parameters in multiple functions in package as u can write and edit those parameter descriptions in just one place
+    - must point @inheritParams to the function where originally define the parameters using @param
+    - not another function where u use the parameters but define them using an @inheritParams pointer
+- use @export if want users to be able to directly use the function
+- can include formatting (lists, etc) and equations
+    https://bookdown.org/rdpeng/RProgDA/documentation.html#common-roxygen2-formatting-tags
+    - use \link tag only in combination with \code tag, since u are linking to another R function
+        Make sure use these with \code wrapping \link, not the other way around (\code{\link{other_function}}), else will get error
+    - some equation formatting, including superscripts and subscripts, wont parse in Markdown-based documentations (but will for pdf-based documentation)
+        with \eqn and deqn tags, can include two versions of an equation, one with full formating, which will be fully compiled by pdf-based documentation
+        and one with reduced form that looks better in Markdown-based documentation (i.e. \deqn{\frac{X^2}{Y}}{X2/Y})
+    - for any examples in help files that take a while to run, wrap the example code in the \dontrun tag
+    - tags \url and \href both include a web link
+        - \url will print out the web address in the help documentation
+            "For more information, see \url{www.google.com}."
+        - \href allows to use text other than the web address for the anchor text of the link
+            "For more information, \href{www.google.com}{Google it}."
+- should also document any data that comes with your package
+    - create a file in the /R folder of the package called "data.R" to use to documentation all of the package's datasets
+    - can use roxygen2 to document each dataset, and end each with the name of the dataset in quotation marks

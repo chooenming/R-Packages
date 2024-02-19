@@ -1,0 +1,65 @@
+testthat package
+- designed to make it easy to setup a battery of tests for R package
+- contains a suite of functions for testing function / expression output with the expected output
+- Example for testing a simple expression:
+    library(testthat)
+    expect_that(sqrt(3)*sqrt(3), equals(3))
+- equal() allows for some numerical fuzz, which is why this expression actually passes the test
+- when a test fails, expect_that() throws an error and does not return something
+    ## Use a strict test of equality (this test fails)
+    expect_that(sqrt(3) * sqrt(3), is_identical_to(3))
+
+    Error: sqrt(3) * sqrt(3) not identical to 3.
+    Objects equal but not identical
+- expect_that() can be used to wrap many different kinds of test, beyond just numerical output
+
+equals()
+check for equality with numerical fuzz
+
+is_identical_to() 
+strict equality via identical()
+
+is_equivalent_to()
+like equals() but ignores object attributes
+
+is_a() 
+checks the class of an object (using inherits())
+
+matches()
+checks that a string matches a regular expression
+
+prints_text()
+checks that an expression prints to the console
+
+shows_message() 
+checks for a message being generated
+
+gives_warning()
+checks that an expression gives a warning
+
+throws_error()
+checks that an expression (properly) throws an error
+
+is_true()
+checks that an expression is TRUE
+
+- Example:
+    test_that("model fitting", {
+                data(airquality)
+                fit <- lm(Ozone ~ Wind, data = airquality)
+                expect_that(fit, is_a("lm"))
+                expect_that(1 + 1, equals(2))
+        })
+
+- put test in an R file
+- if there are multiple sets of tests that test different domains of a package, put those tests in different files
+- individual files can have tests run with the test_file() function
+- collection of test files can be placed in a directory and tested all together with the test_dir() function
+- when running R CMD check all of the tests will be run as part of process of checking entire package
+- If any of the tests fail, then the entire package checking process will fail and will prevent from distributing buggy code
+- if want users to be able to easily see the tests from an installed package, can place the tests in the inst / tests directory and have a separate file in the tests directory run all of the tests
+
+Passing CRAN Checks
+- Before submitting a package to CRAN, must pass a battery o tests that are run by the R via the R CMD check program
+- run R CMD check by clicking "Check" button in "build" tab
+- this will run a series of tests that check the metadata in the package, NAMESPACE file, code, documentation, run any tests, build any vignettes, and many others

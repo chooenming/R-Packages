@@ -1,0 +1,14 @@
+library(devtools)
+create
+- this function inputs the filepath for the directory where you would like to create the package and creates the initial package structure
+- this directory should not yet exist
+- then add elements (code, data, etc) for the package within the structure
+- alternative to create: "File" > "New Project" > "New Direction" > "R Package"
+- can also create the package by hand, creating and then filling a directory
+
+- initial package directory includes:
+    - R subdirectory, where R scripts with all code defining R functions for the package will be saved
+    - two files that will store metadata and interface information about the package (DESCRIPTION & NAMESPACE)
+    - R project file (.Rproj extension) that saves some project options for the directory
+    - two files that ca be used to exclude some files in the directory from either being followed by git (.gitignore) or included when the package is built (.Rbuildignore)
+    
