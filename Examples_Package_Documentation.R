@@ -1,11 +1,27 @@
-#' Read a FARS data file
-#' 
-#' Reads a FARS (Fatality Analysis Reporting System) data file in CSV format.
-#' 
-#' @param filename The path to the FARS data file.
-#' @return A tbl_df containing the data from the FARS data file.
+#' This function reads a csv file and returns a table
+#' An error message will be printed if the file does not exist
+#' Another error message will be printed if you download an invalid laft-hand side to the assignment
+#'
+#' @param filename  a csv file that may or may not exist
+#'
+#' @return a dplyr tbl_df, a wrapper around the data that came from the csv file.
+#'     If the file does not exist, an error message will be printed.
+#'
+#' @importFrom readr read_csv
+#' @importFrom dplyr tbl_df
+#'
+#' @source extdate/accident_year.csv.bz2
+#'
+#'
 #' @export
+#'
+#' @examples
+#' \dontrun{x <- fars_read('myFile.csv')}
+#' \dontrun{system.file("extdata", "accident_year.csv.bz2", package = "packFars"). }
+#'
+
 fars_read <- function(filename) {
+  
   if(!file.exists(filename))
     stop("file '", filename, "' does not exist")
   data <- suppressMessages({
@@ -14,31 +30,56 @@ fars_read <- function(filename) {
   dplyr::tbl_df(data)
 }
 
-#' Generate FARS data file name
+#' Title make_filename
+#'
+#' This function defines years as an integer and includes the number of accidents per year
+#'
+#' @param year  A year as a string, with no restrictions on format
+#'
+#' @return a filename in the format 'accident_year.csv.bz2'. As a side effect, the filename is printed by the function.
+#'
+#' @source extdate/accident_year.csv.bz2
 #' 
-#' Generates the filename for a FARS data file for a given year.
-#' 
-#' @param year The year for which the FARS data file name is generated.
-#' @return A character string representing the filename for the FARS data file.
-#' @export
+#' @examples newFileName <- make_filename('2017')
+#' \dontrun{system.file("extdata", "accident_year.csv.bz2", package = "packFars")}
+
 make_filename <- function(year) {
   year <- as.integer(year)
   sprintf("accident_%d.csv.bz2", year)
 }
 
-#' Read FARS data files for multiple years
-#' 
-#' Reads FARS (Fatality Analysis Reporting System) data files for multiple years and combines them into a list.
-#' 
-#' @param years A vector of years for which FARS data files are to be read.
-#' @return A list containing tbl_df objects for each year's FARS data.
+#' Title fars_read_years
+#'
+#' This function assigns invalid years to NULL and assigns those years with more than one to a list
+#'
+#' An error will be thrown and the function will be halted if the year is invalid
+#'
+#' Uses make_filename(year)
+#'      fars_read(file)
+#'
+#' @param years one or more years as an atomic value or a list
+#'
+#' @return Creates one or more datasets based on year number.  Returns NULL if there is an error
+#'
+#' @importFrom dplyr mutate
+#' @importFrom dplyr select
+#'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'      fars_read_years(1999)
+#'      fars_read_years(as.list(1999, 2000, 2001))
+#'      fars_read_years(1999:2016)
+#' }
+
 fars_read_years <- function(years) {
   lapply(years, function(year) {
+    MONTH <- year <- NULL
     file <- make_filename(year)
     tryCatch({
       dat <- fars_read(file)
-      dplyr::mutate(dat, year = year) %>% 
+      dplyr::mutate(dat, year = year) %>%
         dplyr::select(MONTH, year)
     }, error = function(e) {
       warning("invalid year: ", year)
@@ -47,33 +88,77 @@ fars_read_years <- function(years) {
   })
 }
 
-#' Summarize FARS data for multiple years
-#' 
-#' Summarizes FARS (Fatality Analysis Reporting System) data for multiple years, counting the number of accidents per month.
-#' 
-#' @param years A vector of years for which FARS data is to be summarized.
-#' @return A tbl_df containing the summarized data.
+#' Title fars_summarize_years
+#'
+#' Takes those obsverations with more than one years and places them in a new data
+#' frame which includes the number of values, year, month, and spread of year
+#'
+#' Uses fars_read_years(years)
+#'
+#' @param years One or more years, no error checking
+#'
+#' @return A wide data frame of counts by month and year,
+#'
+#' @importFrom  dplyr bind_rows
+#' @importFrom  dplyr group_by
+#' @importFrom  dplyr summarize
+#' @importFrom  tidyr spread
+#'
+#'
 #' @export
+#'
+#' @examples
+#' \dontrun{
+#'      fars_summarize_years(1999)
+#'      fars_summarize_years(as.list(1999, 2000, 2001))
+#'      fars_summarize_years(1999:2016)
+#' }
+
+
 fars_summarize_years <- function(years) {
+  year <- MONTH <- n <- NULL
   dat_list <- fars_read_years(years)
-  dplyr::bind_rows(dat_list) %>% 
-    dplyr::group_by(year, MONTH) %>% 
+  dplyr::bind_rows(dat_list) %>%
+    dplyr::group_by(year, MONTH) %>%
     dplyr::summarize(n = n()) %>%
     tidyr::spread(year, n)
 }
 
-#' Plot FARS data for a specific state and year
-#' 
-#' Plots FARS (Fatality Analysis Reporting System) data for a specific state and year on a map.
-#' 
-#' @param state.num The numeric code representing the state for which data is to be plotted.
-#' @param year The year for which FARS data is to be plotted.
-#' @return A map plot of FARS data for the specified state and year.
+#' Title fars_map_state
+#'
+#' This function stores these tables in a new file and accepts a state number and year
+#' from the program
+#'
+#' Error checks to make sure the state number exists
+#' If so, uses maps and graphics to create plots based on latitude and longitude from the data file
+#'
+#' Uses make_filename(year)
+#'      fars_read(filename)
+#'
+#' @param state.num Number of a state
+#' @param year The year in question
+#'
+#' @return A plot or set of plots based on latitude and longitude from the data file
+#'
 #' @export
+
+#'
+#' @importFrom dplyr filter
+#' @importFrom maps map
+#' @importFrom graphics points
+#'
+#' @examples
+#' \dontrun{
+#' fars_map_state(1, 2013)
+#' }
+#'
+
 fars_map_state <- function(state.num, year) {
   filename <- make_filename(year)
   data <- fars_read(filename)
   state.num <- as.integer(state.num)
+  
+  STATE <- NULL
   
   if(!(state.num %in% unique(data$STATE)))
     stop("invalid STATE number: ", state.num)
