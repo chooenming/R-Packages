@@ -5,3 +5,4 @@ Follow sequence:
 4. Documentation.txt
 5. Data_within_Package
 6. Software_Testing_Framework_for_Packages
+7. Examples_Package_Documentation
