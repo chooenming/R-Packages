@@ -1,0 +1,34 @@
+- Can specify how R package is licensed in the package DESCRIPTION file under the License: section. 
+- How you license the R package is important because it provides a set of constraints for how other R developers use your code. 
+- If you’re writing an R package to be used internally in your company then your company may choose to not share the package. 
+- In this case licensing your R package is less important since the package belongs to your company. 
+- In your package DESCRIPTION you can specify License: file LICENSE, 
+    and then create a text file called LICENSE which explains that your company reserves all rights to the package.
+- However if like to publicly share your R package you should consider open source licensing. 
+- The philosophy of open source revolves around three principles:
+    1. The source code of the software can be inspected.
+    2. The source code of the software can be modified.
+    3. Modified versions of the software can be redistributed.
+
+General Public License
+- aka GPL, GNU GPC, GPL-3
+- GPL is known as a copyleft license, meaning that any software that is bundled with or originates from software licensed under the GPL must also be released under the GPL. 
+- The exacting meaning of “bundle” will depend a bit on the circumstances. 
+- For example, software distributed with an O/S can be licensed under different licenses even if the O/S itself is licensed under the GPL. 
+- Can use the GPL-3 as the license for R package by specifying License: GPL-3 in the DESCRIPTION file.
+- R itself is licensed under version 2 of the GPL, or GPL-2, which is an earlier version of this license.
+
+MIT License
+- The MIT license is a more permissive license compared to the GPL. 
+- MIT licensed software can be modified or incorporated into software that is not open source. 
+- The MIT license protects the copyright holder from legal liability that might be incurred from using the software. 
+- When using the MIT license in a R package, should specify License: MIT + file LICENSE in the DESCRIPTION file. 
+- Should then add a file called LICENSE to your package which uses the following template exactly:
+    YEAR: [The current year]
+    COPYRIGHT HOLDER: [Name / Organization's Name]
+
+CC0 License
+- The Creative Commons licenses are usually used for artistic and creative works, however the CC0 license is also appropriate for software. 
+- The CC0 license dedicates R package to the public domain, which means that give up all copyright claims to R package. 
+- The CC0 license allows software to join other great works like Pride and Prejudice, The Adventures of Huckleberry Finn, and The Scarlet Letter in the public domain. 
+- Can use the CC0 license for R package by specifying License: CC0 in the DESCRIPTION file.
